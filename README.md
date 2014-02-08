@@ -26,6 +26,18 @@ Run jar file
 java -jar target/nidaba-0.1.0-standalone.jar
 ```
 
+## Chrome app
+
+Get latest Chrome Browser. Run jar file and start frontend
+
+```
+chromium-browser -app=http://localhost:8080
+```
+
+## Comment
+
+Above code only tested with Ubuntu 13.10. Further testing needed.
+
 ## License
 
 Copyright © 2014 Konrad Kühne
