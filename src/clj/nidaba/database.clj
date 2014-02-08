@@ -2,26 +2,30 @@
   (:require [clojure.java.jdbc :as sql]))
 
 (def db {:subprotocol "mysql"
-         :subname "//localhost:3306/nitro"
-         :user "nitrouser"
-         :password "nitro123"})
+         :subname "//localhost:3306/nidaba"
+         :user "lisp-god"
+         :password "123456"})
 
-(defn create-oligo-table []
+(defn create-a-table []
   (sql/db-do-commands
     db
     (sql/create-table-ddl
-     :oligo
+     :enterprise
      [:id :integer "PRIMARY KEY" "AUTO_INCREMENT"]
-     [:oligo :text]
-     [:sequence :text]
-     [:priming_in :text]
-     [:used_for :text]
-     [:stored_by :text]
-     [:date :date])))
+     [:series :text]
+     [:captain :text]
+     [:first_officer :text] ;; no dashes with sql columns ...
+     )))
 
-(defn insert-oligo-data [{oligo "oligo" sequence "sequence" priming_in "priming_in" used_for "used_for" stored_by "stored_by" date "date"}]
+(defn insert-some-data [{series :series captain :captain first-officer :first_officer}]
   (sql/insert!
    db
-   :oligo
-   [:oligo :sequence :priming_in :used_for :stored_by :date]
-   [oligo sequence priming_in used_for stored_by date]))
+   :enterprise
+   [:series :captain :first_officer]
+   [series captain first-officer]))
+
+#_(create-a-table)
+(def test-data [{:series "tng" :captain "picard" :first_officer "riker"}
+                {:series "original" :captain "kirk" :first_officer "spock"}])
+
+#_(doall (map insert-some-data test-data))
