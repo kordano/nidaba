@@ -27,7 +27,6 @@
 
 (defn start-ws-server [port]
   (run-server handler {:port port}))
-#_(start-ws-server)
 
 
                                         ; ring server
