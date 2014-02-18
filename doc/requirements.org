@@ -1,0 +1,53 @@
+
+*Requirements*
+
+
+* Customer's Dreams
+
+1) Easily add appointment:
+   | Date | Hours | Child / Group | Cost |
+
+Note:
+- Add irregular group appointment with subject
+
+2) Show appointments of approx. last 2-3 months:
+   | Date | Hours | Child / Group | Cost | paid? |
+
+3) Comparison of expenditures and revenue over chosen period of time:
+   |        | Revenue                 |       | Expenditure |       |       |
+   |--------+-------------------------+-------+-------------+-------+-------|
+   |        | Single Appointments:    | ...€  | Category 1: | ...€  |       |
+   |        | Group (Organization 1): | ...€  | Category 2: | ...€  |       |
+   |        | Group (Organization 2): | ...€  | Category 3: | ...€  |       |
+   |        | ...                     | ...   |             |       |       |
+   |        |                         | ----- |             | ----- |       |
+   | Total: |                         | ...€  | -           | ...€  | =...€ |
+
+4) Find information about groups:
+   - names of children
+   - appointments approx. from month before until ... (near future?)
+   - contact information of contracting body:
+     | Name | Phone (main) | Phone (venue) | Phone ( ... )   | ...  |
+
+Note:
+- Contracting bodies pay for group sessions and irregular presentations and parents' evenings
+- Find also information about children:
+  | Name | Current Hourly Rate | Phone (home) | Phone (teacher) | Billing Address |
+
+5) Reminders for creating invoices
+   - default: end of month
+   - also possible: after 5 appointments
+
+6*) Generate invoices
+
+
+* Data Model
+
+- Termin(Datum, ID -> Kunde, Preis, Std, bezahlt?)
+- Kunde(ID, Name, momentanerStundensatz)
+- Kind(ID -> Kunde, Tel_Eltern, Tel_Lehrer, ID -> Rechnungsadresse)
+- Gruppe(ID -> Kunde, Teilnehmer(wie?), ID -> Institution)
+- Institution(ID, Name, ID -> Rechnungsadresse, Tels(wie?))
+- Ausgaben(Datum, Kategorie, Kosten)
+- weitere_Termine(Datum, ID -> Institution, Betreff, Preis)
+- Rechnungsadresse(ID, Vorname, Nachname, Geschlecht, Ort, Straße)
