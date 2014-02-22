@@ -6,7 +6,8 @@
             [compojure.core :refer (GET defroutes)]
             [ring.adapter.jetty :refer [run-jetty]]
             [clojure.java.io :as io]
-            [org.httpkit.server :refer [with-channel on-close on-receive run-server send!]]))
+            [org.httpkit.server :refer [with-channel on-close on-receive run-server send!]]
+            [nidaba.style :as style]))
 
 
 (defn destructure-request [{type :type data :data }]
@@ -34,24 +35,28 @@
   (io/resource "public/index.html")
   []
   [:body] (enlive/append
-            (enlive/html [:script (browser-connected-repl-js)])))
+           (enlive/html [:script (browser-connected-repl-js)]))
+  [:head] (enlive/append
+           (enlive/html [:style (style/init)])))
 
 (defroutes site
   (resources "/")
   (GET "/*" req (page)))
 
-(defn run
-  []
-  (defonce ^:private server
-    (ring.adapter.jetty/run-jetty #'site {:port 8080 :join? false}))
-  server)
+(defn run [port]
+  (ring.adapter.jetty/run-jetty #'site {:port port :join? false}))
+
+(defonce server
+  (run 8081))
 
 (defn -main
   [& args]
   (println "Starting ring server")
-  (run)
+  (run 8081)
   (println "Starting websocket server")
   (start-ws-server 9090))
 
-#_(run)
+
+#_(.stop server)
+#_(.start server)
 #_(start-ws-server 9090)
