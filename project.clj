@@ -15,10 +15,13 @@
                  [mysql/mysql-connector-java "5.1.29"]
                  [ring "1.2.1"]
                  [enlive "1.1.5"]
-                 [http-kit "2.1.16"]
+                 [http-kit "2.1.17"]
                  [compojure "1.1.6"]
+                 [om "0.5.0"]
+                 [com.facebook/react "0.9.0"]
                  [prismatic/dommy "0.1.2"]
-                 [hiccups "0.3.0"]]
+                 [hiccups "0.3.0"]
+                 [garden "1.1.5"]]
 
   :plugins [[lein-cljsbuild "1.0.1"]
             [com.cemerick/austin "0.1.3"]
@@ -33,5 +36,4 @@
    [{:source-paths ["src/cljs"]
      :compiler
      {:output-to "resources/public/js/main.js"
-      :optimizations :simple
-      :pretty-print true}}]})
+      :optimizations :simple}}]})
