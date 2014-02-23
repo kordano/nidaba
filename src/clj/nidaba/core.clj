@@ -52,7 +52,7 @@
 (defn -main
   [& args]
   (println "Starting ring server")
-  (run 8081)
+  (run 8080)
   (println "Starting websocket server")
   (start-ws-server 9090))
 
