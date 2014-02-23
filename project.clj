@@ -29,7 +29,13 @@
 
   :repl-options {:init-ns nidaba.core}
 
-  :main nidaba.core
+  :main ^:skip-aot nidaba.core
+
+  :uberjar-name "nidaba-standalone.jar"
+
+  :hooks [leiningen.cljsbuild]
+
+  :profiles {:uberjar {:aot :all}}
 
   :cljsbuild
   {:builds

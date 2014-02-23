@@ -46,7 +46,7 @@
 (defn run [port]
   (ring.adapter.jetty/run-jetty #'site {:port port :join? false}))
 
-(defonce server
+#_(defonce server
   (run 8081))
 
 (defn -main

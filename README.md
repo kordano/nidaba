@@ -23,7 +23,7 @@ lein uberjar
 Run jar file
 
 ```
-java -jar target/nidaba-0.1.0-standalone.jar
+java -jar target/nidaba-standalone.jar
 ```
 
 ## Chrome app
@@ -31,7 +31,7 @@ java -jar target/nidaba-0.1.0-standalone.jar
 Get latest Chrome Browser. Run jar file and start frontend
 
 ```
-chromium-browser -app=http://localhost:8080
+chromium-browser -app=http://localhost:8081
 ```
 
 ## Comment
