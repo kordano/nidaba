@@ -35,12 +35,33 @@
                        :1003 {:name "Troi" :hourly-rate 3}
                        :1004 {:name "Crusher" :hourly-rate 12}}}))
 
+;; --- ui helper ---
 
 (defn overlay []
   (let [el (.getElementById js/document "overlay")]
     (if (= "visible" (.-visibility (.-style el)))
       (set! (.-visibility (.-style el)) "hidden")
       (set! (.-visibility (.-style el)) "visible"))))
+
+
+(defn show-menu [e]
+  (let [menu (aget (.-childNodes (.-parentNode (.-target e))) 1)]
+    (do
+      (.stopPropagation e)
+      (if (.contains (.-classList menu) "is-selected")
+        (.remove (.-classList menu) "is-selected")
+        (.add (.-classList menu) "is-selected")))))
+
+
+
+
+
+;; --- state helper ---
+
+(defn clients [app]
+  (->> (:clients app)
+       vals
+       (mapv :name)))
 
 
 (defn appointment [app]
@@ -65,6 +86,8 @@
            (fn [x] (if x "yes" "no")))))))
 
 
+;; --- view ---
+
 (defn appointment-view [appointment owner]
   (reify
     om/IRender
@@ -86,7 +109,57 @@
         #js {:className "cotainer-input" :id "overlay"}
         (dom/div
          nil
-         (dom/a nil "Substanz ist Form und Inhalt.")
+
+         (dom/a
+          #js {:className "overlay-header"}
+          "Substanz ist Form und Inhalt.")
+
+         (dom/input
+          #js {:className "overlay-input"
+               :placeholder "Date"})
+
+         (dom/input
+          #js {:className "overlay-input"
+               :placeholder "Price"})
+
+         ;; --- client menu ---
+         (dom/li
+          #js {:className "menubar-item"
+               :onClick (fn [e] (show-menu e))}
+          (dom/a
+           #js {:className "menubar-item-target"}
+           "Select client ...")
+          (apply dom/ul #js {:className "menu"}
+                 (map
+                  #(dom/li
+                    #js {:className "menu-item"}
+                    (dom/a
+                     #js {:className "menu-item-target"
+                          :href "#"
+                          :onClick (fn [e] (.log js/console (.-target e)))
+                          }
+                     %))
+                  (clients app))))
+
+         ;; --- hours menu ---
+         (dom/li
+          #js {:className "menubar-item"
+               :onClick (fn [e] (show-menu e))}
+          (dom/a
+           #js {:className "menubar-item-target"}
+           "Select hours ...")
+          (apply dom/ul #js {:className "menu"}
+                 (map
+                  #(dom/li
+                    #js {:className "menu-item"}
+                    (dom/a
+                     #js {:className "menu-item-target"
+                          :onClick (fn [e] (.log js/console (.-target e)))
+                          :href "#"}
+                     (str %)))
+                  (range 1 10))))
+
+
          (dom/div
           #js {:className "overlay-nav"}
 
@@ -100,6 +173,7 @@
                 :onClick (fn [] (overlay))}
            "Ok"))))
 
+       ;; --- appointment container ---
        (dom/div
         #js {:className "container"}
 
@@ -110,7 +184,7 @@
 
          (dom/button
           #js {:className "header-button" :onClick (fn [e] (overlay))}
-          "push it"))
+          "Add appointment"))
 
 
         (dom/div
