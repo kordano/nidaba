@@ -1,6 +1,6 @@
 (ns nidaba.style
   (:require [garden.core :refer [css]]
-            [garden.units :refer [px pt]]
+            [garden.units :refer [px pt em]]
             [garden.color :refer [hsl rgb lighten darken]]))
 
 (def dark-palette {:background (hsl 0 0 18)
@@ -49,7 +49,7 @@
     {:font-size (pt 18)
      :font-style :italic}
     [:a
-     {:color (:violet p)}]]
+     {:color (:red p)}]]
    [:.container-list
     [:table
      {:width full
@@ -58,8 +58,17 @@
       :text-align :center}
      [:td
       {:border {:style :solid
-               :width (px 1)}}]]]
-   [:#overlay
+               :width (px 1)}}]]]))
+
+(defn option [p]
+  (list
+   [:select
+    {:background (:base2 p)
+     :color (:base01 p)
+     :border-color (:base01 p)}]))
+
+(defn overlay [p]
+  [:#overlay
     {:visibility :hidden
      :position :absolute
      :width full
@@ -74,17 +83,77 @@
       :margin-right :auto
       :border {:width (px 1)
                :style :solid
-               :color (:base02 p)}
+               :color (:base01 p)}
       :text-align :center}
-     [:a
-      {:width full
-       :margin 0
+     [:input
+      {:background (:base3 p)
+       :width (px 200)
+       :color (:base01 p)
+       :border {:style :solid
+                :width (px 1)
+                :color (:base01 p)}
+       :text-align :center
+       :font-size (pt 12)}]
+     [:.overlay-header
+      {:font-size (pt 14)
+       :font-style :italic
+       :color (:red p)}]
+
+     [:.overlay-input
+      {:margin-top (px 5)
        :padding 0}]
+
      [:.overlay-nav
       {:border :none
        :margin-left :auto
        :margin-right :auto
-       :margin-bottom (px 5)}]]]))
+       :margin-bottom (px 5)}]]])
+
+
+(defn menu [p]
+  (list
+   [:.menubar-item
+    {:display :inline-block
+     :margin-top (px 5)
+     :position :relative}]
+
+   [:.menubar-item-target
+    {:color (:base01 p)
+     :background (:base3 p)
+     :display :block
+     :width (px 200)
+     :text-decoration :none
+     :border {:style :solid
+              :color (:base01 p)
+              :width (px 1)}
+     :cursor :pointer}
+    [:&:hover
+     {:background (:red p)
+      :color (:base3 p)}]]
+
+   [:.menu
+    {:display :none
+     :position :absolute
+     :padding 0
+     :margin 0
+     :top full
+     :z-index 1500
+     :border {:style :solid
+              :color (:base01 p)
+              :width (px 1)}
+     :border-top 0
+     :background (:base3 p)
+     :list-style :none
+     :width (px 200)}]
+   [:.is-selected :.menu-item {:display :block}]
+
+   [:.menu-item-target
+    {:color (:base01 p)
+     :display :block
+     :text-decoration :none}
+    [:&:hover
+     {:background (:red p)
+      :color (:base3 p)}]]))
 
 
 (defn button [p]
@@ -92,18 +161,32 @@
    [:button
     {:color (:base01 p)
      :background (:base3 p)
-     :padding "3px 6px"
-     :border {:radius (px 1)
+     :padding "4px 8px"
+     :border {:radius (px 4)
               :width (px 1)
               :style :solid
               :color (:base01 p)}}
     [:&:hover
      {:color (:red p)
-      :border-color (:red p)}]]
+      :border-color (:red p)
+      :cursor :pointer}]]
    [:.header-button
     {:float :right}]))
 
 
 (defn init []
   (css
-   (map #(% solarized) [body container button])))
+   (map
+    #(% solarized)
+    [body container button overlay option menu])))
+
+
+#_(css [:.menu
+    {:display :none
+     :position :absolute
+     :top full
+     :background "#fff"
+     :list-style :none
+     :width (em 15)
+     :padding "10px 0"}
+    [".is-selected &" {:display :block}]])
