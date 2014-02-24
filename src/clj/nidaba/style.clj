@@ -49,7 +49,7 @@
     {:font-size (pt 18)
      :font-style :italic}
     [:a
-     {:color (:red p)}]]
+     {:color (:blue p)}]]
    [:.container-list
     [:table
      {:width full
@@ -97,7 +97,7 @@
      [:.overlay-header
       {:font-size (pt 14)
        :font-style :italic
-       :color (:red p)}]
+       :color (:blue p)}]
 
      [:.overlay-input
       {:margin-top (px 5)
@@ -128,7 +128,7 @@
               :width (px 1)}
      :cursor :pointer}
     [:&:hover
-     {:background (:red p)
+     {:background (:blue p)
       :color (:base3 p)}]]
 
    [:.menu
@@ -152,7 +152,7 @@
      :display :block
      :text-decoration :none}
     [:&:hover
-     {:background (:red p)
+     {:background (:blue p)
       :color (:base3 p)}]]))
 
 
