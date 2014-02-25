@@ -35,9 +35,7 @@
   (io/resource "public/index.html")
   []
   [:body] (enlive/append
-           (enlive/html [:script (browser-connected-repl-js)]))
-  [:head] (enlive/append
-           (enlive/html [:style (style/init)])))
+           (enlive/html [:script (browser-connected-repl-js)])))
 
 (defroutes site
   (resources "/")
@@ -46,7 +44,7 @@
 (defn run [port]
   (ring.adapter.jetty/run-jetty #'site {:port port :join? false}))
 
-#_(defonce server
+(defonce server
   (run 8081))
 
 (defn -main
