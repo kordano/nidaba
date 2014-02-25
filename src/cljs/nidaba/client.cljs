@@ -67,10 +67,21 @@
            (fn [x] (if x "yes" "no")))))))
 
 
+(defn add-appointment [app owner]
+  (let [date (js/Date. (.-value (om/get-node owner "appointment-input-date")))
+        hours (js/parseFloat (.-value (om/get-node owner "appointment-input-hours")))
+        id (keyword (.-value (om/get-node owner "appointment-input-id")))
+        price (js/parseFloat (.-value (om/get-node owner "appointment-input-price")))
+        entry {:date date :hours hours :client-id id :price price :payed false}]
+    (go
+      (put! (om/get-state owner :addition) entry)
+      (.reset (.getElementById js/document "input-form")))))
+
 
 ;; --- view ---
 
 (defn appointment-modal [app owner]
+  "create modal dialog with inputs for date, id, hours and price"
   (dom/div
    #js {:className "modal fade"
         :id "add-appointment-modal"
@@ -104,7 +115,8 @@
       #js {:className "modal-body"}
 
       (dom/form
-       #js {:role "form"}
+       #js {:role "form"
+            :id "input-form"}
 
        (dom/div
         #js {:className "form-group"}
@@ -116,6 +128,7 @@
          #js {:type "date"
               :className "form-control"
               :id "appointment-input-date"
+              :ref "appointment-input-date"
               :placeholder "YYYY-MM-DD"})
 
         (dom/label
@@ -124,16 +137,18 @@
         (dom/input
          #js {:className "form-control"
               :type "number"
-              :id "appointment-input-hours"})
+              :id "appointment-input-hours"
+              :ref "appointment-input-hours"})
 
         (dom/label
          #js {:for "appointment-input-id"}
          "ID")
         (dom/select
          #js {:className "form-control"
-              :id "appointment-input-id"}
+              :id "appointment-input-id"
+              :ref "appointment-input-id"}
          (doall
-          (map #(dom/option nil (str %)) (clients app))))
+          (map #(dom/option #js {:value (name %)} (-> app :clients % :name)) (keys (:clients app)))))
 
 
         (dom/label
@@ -142,7 +157,8 @@
         (dom/input
          #js {:type "number"
               :className "form-control"
-              :id "appointment-input-price"}))))
+              :id "appointment-input-price"
+              :ref "appointment-input-price"}))))
 
      (dom/div
       #js {:className "modal-footer"}
@@ -154,7 +170,9 @@
        "Close")
       (dom/button
        #js {:type "button"
-            :className "btn btn-primary"}
+            :className "btn btn-primary"
+            :data-dismiss "modal"
+            :onClick #(add-appointment app owner)}
        "Energize"))))))
 
 
@@ -171,8 +189,23 @@
 
 (defn appointments-view [app owner]
   (reify
-    om/IRender
-    (render [this]
+    om/IInitState
+    (init-state [_]
+      {:addition (chan)})
+
+    om/IWillMount
+    (will-mount [_]
+      (let [addition (om/get-state owner :addition)]
+        (go
+          (loop []
+            (let [appointment (<! addition)]
+              (.log js/console (str (vals appointment)))
+              (om/transact! app :appointment
+                            (fn [xs] (vec (sort-by :date > (conj xs appointment)))))
+              (recur))))))
+
+    om/IRenderState
+    (render-state [this {:keys [addition] :as state}]
       (dom/div
        nil
 
@@ -206,7 +239,8 @@
            (dom/th nil "payed?")))
 
          (apply dom/tbody nil
-                (om/build-all appointment-view (appointment app)))))))))
+                (om/build-all appointment-view (appointment app)
+                              {:init-state {:addition addition}}))))))))
 
 
 (om/root
