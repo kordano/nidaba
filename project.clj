@@ -21,6 +21,7 @@
                  [com.facebook/react "0.9.0"]
                  [prismatic/dommy "0.1.2"]
                  [hiccups "0.3.0"]
+                 [sablono "0.2.6"]
                  [garden "1.1.5"]]
 
   :plugins [[lein-cljsbuild "1.0.1"]
@@ -33,7 +34,7 @@
 
   :uberjar-name "nidaba-standalone.jar"
 
-  :hooks [leiningen.cljsbuild]
+  ;;:hooks [leiningen.cljsbuild]
 
   :profiles {:uberjar {:aot :all}}
 
