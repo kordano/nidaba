@@ -2,8 +2,8 @@
   (:require [hiccups.runtime :as hiccupsrt]
             [clojure.browser.repl]
             [cljs.core.async :refer [put! chan <! timeout]]
-            [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true])
+            [sablono.core :as html :refer-macros [html]]
+            [om.core :as om :include-macros true])
   (:require-macros [hiccups.core :as hiccups]
                    [cljs.core.async.macros :refer [go]]))
 
@@ -47,24 +47,8 @@
 
 (defn appointment [app]
   (->> (:appointment app)
-       (mapv
-        (fn [x]
-          (update-in
-           x
-           [:date]
-           (fn [date] (.toDateString date)))))
-       (mapv
-        (fn [x]
-          (update-in
-           x
-           [:client-id]
-           (fn [id] (-> app :clients id :name)))))
-       (mapv
-        (fn [x]
-          (update-in
-           x
-           [:payed]
-           (fn [x] (if x "yes" "no")))))))
+       (mapv (fn [x] (update-in x [:date] (fn [date] (.toDateString date)))))
+       (mapv (fn [x] (update-in x [:client-id] (fn [id] (-> app :clients id :name)))))))
 
 
 (defn add-appointment [app owner]
@@ -80,167 +64,156 @@
 
 ;; --- view ---
 
+(defn appointment-alert [app owner]
+  (html
+   [:div#appointment-alert.alert.alert-success.alert-dismissable.fade.in
+    {:aria-hidden "true"}
+    "Appointment successfully added"
+    [:button.close
+     {:type "button"
+      :data-dismiss "alert"
+      :aria-hidden "true"}
+     "\u00D7"]]))
+
+
 (defn appointment-modal [app owner]
   "create modal dialog with inputs for date, id, hours and price"
-  (dom/div
-   #js {:className "modal fade"
-        :id "add-appointment-modal"
-        :tabindex "-1"
-        :role "dialog"
-        :aria-labelledby "add-appointment-modal-label"
-        :aria-hidden "true"}
+   [:div#add-appointment-modal
+    {:class "modal fade"
+     :tabindex "-1"
+     :role "dialog"
+     :aria-labelledby "add-appointment-modal-label"
+     :aria-hidden "true"}
 
-   (dom/div
-    #js {:className "modal-dialog"}
+    [:div.modal-dialog
+     [:div.modal-content
 
-    (dom/div
-     #js {:className "modal-content"}
+      [:div.modal-header
+       [:button.close {:type "button" :data-dismiss "modal" :aria-hidden "true"}
+        "\u00D7"]
+       [:h4#add-appointment-modal-label.modal-title
+        "Add new Appointment"]]
 
-     (dom/div
-      #js {:className "modal-header"}
+      [:div.modal-body
+       [:form#input-form {:role "form"}
+        [:div.form-group
 
-      (dom/button
-       #js {:type "button"
-            :className "close"
-            :data-dismiss "modal"
-            :aria-hidden "true"}
-       "\u00D7")
+         [:label {:for "appointment-input-date"} "Date"]
+         [:input#appointment-input-date.form-control
+           {:type "date"
+            :ref "appointment-input-date"
+            :placeholder "YYYY-MM-DD"}]
 
-      (dom/h4
-       #js {:className "modal-title"
-            :id "add-appointment-modal-label"}
-       "Add new Appointment"))
+         [:label {:for "appointment-input-hours"} "Hours"]
+         [:input#appointment-input-hours.form-control
+          {:type "number"
+           :ref "appointment-input-hours"}]
 
-     (dom/div
-      #js {:className "modal-body"}
+         [:label {:for "appointment-input-id"} "ID"]
+         [:select#appointment-input-id.form-control {:ref "appointment-input-id"}
+          (doall
+           (map
+            #(vec [:option {:value (name %)} (-> app :clients % :name)])
+            (keys (:clients app))))]
 
-      (dom/form
-       #js {:role "form"
-            :id "input-form"}
+         [:label {:for "appointment-input-price"} "Price"]
+         [:input#appointment-input-price.form-control
+          {:type "number"
+           :ref "appointment-input-price"}]]]]
 
-       (dom/div
-        #js {:className "form-group"}
+     [:div.modal-footer
+      [:button.btn.btn-default
+       {:type "button"
+        :data-dismiss "modal"}
+       "Close"]
 
-        (dom/label
-         #js {:for "appointment-input-date"}
-         "Date")
-        (dom/input
-         #js {:type "date"
-              :className "form-control"
-              :id "appointment-input-date"
-              :ref "appointment-input-date"
-              :placeholder "YYYY-MM-DD"})
-
-        (dom/label
-         #js {:for "appointment-input-hours"}
-         "Hours")
-        (dom/input
-         #js {:className "form-control"
-              :type "number"
-              :id "appointment-input-hours"
-              :ref "appointment-input-hours"})
-
-        (dom/label
-         #js {:for "appointment-input-id"}
-         "ID")
-        (dom/select
-         #js {:className "form-control"
-              :id "appointment-input-id"
-              :ref "appointment-input-id"}
-         (doall
-          (map #(dom/option #js {:value (name %)} (-> app :clients % :name)) (keys (:clients app)))))
-
-
-        (dom/label
-         #js {:for "appointment-input-price"}
-         "Price")
-        (dom/input
-         #js {:type "number"
-              :className "form-control"
-              :id "appointment-input-price"
-              :ref "appointment-input-price"}))))
-
-     (dom/div
-      #js {:className "modal-footer"}
-
-      (dom/button
-       #js {:type "button"
-            :className "btn btn-default"
-            :data-dismiss "modal"}
-       "Close")
-      (dom/button
-       #js {:type "button"
-            :className "btn btn-primary"
-            :data-dismiss "modal"
-            :onClick #(add-appointment app owner)}
-       "Energize"))))))
+      [:button.btn.btn-primary
+       {:type "button"
+        :data-dismiss "modal"
+        :on-click #(add-appointment app owner)}
+       "Energize"]]]]])
 
 
 
 (defn appointment-view [appointment owner]
   (reify
-    om/IRender
-    (render [this]
-      (apply dom/tr nil
-             (mapv
-              #(dom/td nil (get appointment %))
-              [:date :price :client-id :hours :payed])))))
+    om/IRenderState
+    (render-state [this {:keys [payed]}]
+      (html
+       [:tr
+        (map
+         #(vec [:td (get appointment %)])
+         [:date :price :client-id :hours])
+        [:td
+         [:div.checkbox
+          [:input {:type "checkbox"
+                   :checked (appointment :payed)
+                   :on-click #(put! payed @appointment)}]]]]))))
 
 
 (defn appointments-view [app owner]
   (reify
     om/IInitState
     (init-state [_]
-      {:addition (chan)})
+      {:addition (chan)
+       :payed (chan)})
 
     om/IWillMount
     (will-mount [_]
-      (let [addition (om/get-state owner :addition)]
+      (let [addition (om/get-state owner :addition)
+            payed (om/get-state owner :payed)]
         (go
           (loop []
-            (let [appointment (<! addition)]
-              (.log js/console (str (vals appointment)))
-              (om/transact! app :appointment
-                            (fn [xs] (vec (sort-by :date > (conj xs appointment)))))
+            (let [[appointment c] (alts! [addition payed])]
+              (condp = c
+                addition (om/transact!
+                          app
+                          :appointment
+                          (fn [xs] (vec (sort-by :date > (conj xs appointment)))))
+                payed (om/transact!
+                       app
+                       :appointment
+                       (fn [xs] (mapv
+                                (fn [x]
+                                  (if (= x appointment)
+                                    (update-in x [:payed] not)
+                                    x))
+                                xs))))
               (recur))))))
 
     om/IRenderState
-    (render-state [this {:keys [addition] :as state}]
-      (dom/div
-       nil
+    (render-state [this {:keys [addition payed] :as state}]
+      (html
+       [:div
 
-       ;; --- appointment container ---
-       (dom/h1
-        #js {:className "page-header"} "Appointments")
+        ;; --- appointment container ---
+        [:h1.page-header "Appointments"]
 
-       (dom/button
-        #js {:className "btn btn-primary"
-             :data-toggle "modal"
-             :data-target "#add-appointment-modal"}
-        "Add Appointment")
+        [:div.row
+         [:div.col-md-4
+          [:button.btn.btn-primary
+           {:data-toggle "modal"
+            :data-placement "left"
+            :title "Add a new appointment"
+            :data-target "#add-appointment-modal"}
+           "Add Appointment"]]]
 
-       ;; --- modal dialog
-       (appointment-modal app owner)
+        ;; --- modal dialog
+        (appointment-modal app owner)
 
-       (dom/div
-        #js {:className "table-responsive"}
-
-        (dom/table
-         #js {:className "table table-striped"}
-
-         (dom/thead
-          nil
-          (dom/tr
-           nil
-           (dom/th nil "Date")
-           (dom/th nil "Price")
-           (dom/th nil "Name")
-           (dom/th nil "Hours")
-           (dom/th nil "payed?")))
-
-         (apply dom/tbody nil
-                (om/build-all appointment-view (appointment app)
-                              {:init-state {:addition addition}}))))))))
+        [:div.table-responsive
+         [:table.table.table-striped
+          [:thead
+           [:tr
+            [:th "Date"]
+            [:th "Price"]
+            [:th "Name"]
+            [:th "Hours"]
+            [:th "payed?"]]]
+          [:tbody
+           (om/build-all appointment-view (appointment app)
+                         {:init-state {:addition addition
+                                       :payed payed}})]]]]))))
 
 
 (om/root
