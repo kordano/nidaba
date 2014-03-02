@@ -34,7 +34,7 @@
 
   :uberjar-name "nidaba-standalone.jar"
 
-  ;;:hooks [leiningen.cljsbuild]
+  :hooks [leiningen.cljsbuild]
 
   :profiles {:uberjar {:aot :all}}
 
