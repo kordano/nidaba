@@ -13,6 +13,7 @@
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [org.clojure/java.jdbc "0.3.3"]
                  [mysql/mysql-connector-java "5.1.29"]
+                 [com.ashafa/clutch "0.4.0-RC1"]
                  [ring "1.2.1"]
                  [enlive "1.1.5"]
                  [http-kit "2.1.17"]
@@ -34,7 +35,7 @@
 
   :uberjar-name "nidaba-standalone.jar"
 
-  :hooks [leiningen.cljsbuild]
+  ;;:hooks [leiningen.cljsbuild]
 
   :profiles {:uberjar {:aot :all}}
 

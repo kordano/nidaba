@@ -7,7 +7,7 @@
             [ring.adapter.jetty :refer [run-jetty]]
             [clojure.java.io :as io]
             [org.httpkit.server :refer [with-channel on-close on-receive run-server send!]]
-            [nidaba.style :as style]))
+            [nidaba.warehouse :as warehouse]))
 
 
 (defn destructure-request [{type :type data :data }]
@@ -39,22 +39,35 @@
 
 (defroutes site
   (resources "/")
+
+  (GET "/appointment/all" []
+       {:status 200
+        :headers {"Content-Type" "application/edn"}
+        :body (str (warehouse/get-all-appointments))})
+
+  (POST "/bookmark/add" request
+        (let [data (-> request :body slurp read-string)
+              resp (warehouse/insert-appointment data)]
+          {:status 200
+           :headers {"Content-Type" "application/edn"}
+           :body (str (warehouse/get-all-appointments))}))
+
   (GET "/*" req (page)))
 
 (defn run [port]
   (ring.adapter.jetty/run-jetty #'site {:port port :join? false}))
 
-#_(defonce server
-  (run 8081))
-
 (defn -main
   [& args]
+  (println "Checking database...")
+  (warehouse/init-db)
   (println "Starting ring server")
   (run 8081)
   (println "Starting websocket server")
   (start-ws-server 9090))
 
 
+(defonce server (run 8081))
+(start-ws-server 9090)
 #_(.stop server)
 #_(.start server)
-#_(start-ws-server 9090)
