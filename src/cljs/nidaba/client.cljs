@@ -273,7 +273,7 @@
 (.log js/console "energize")
 
 ;; --- testing ---
-(go
+#_(go
   (let [connection (<! (connect! "ws://localhost:8081/nidaba/ws"))]
     (>! (:in connection) {:topic :greeting :data ""})
     (.log js/console (str (<! (:out connection))))

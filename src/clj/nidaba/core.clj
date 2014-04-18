@@ -9,9 +9,9 @@
             [nidaba.warehouse :as warehouse]))
 
 
-(defn dispatch-request [{type :type data :data }]
-  (case type
-    "greeting" {:type "greeting" :data "Hail to the LAMBDA!"}
+(defn dispatch-request [{:keys [topic data]}]
+  (case topic
+    :greeting {:topic :greeting :data "Hail to the LAMBDA!"}
     "DEFAULT"))
 
 
